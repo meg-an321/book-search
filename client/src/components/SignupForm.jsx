@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 
-import { createUser } from '../utils/API';
+import { useMutation } from '@apollo/client'; // Import the useMutation hook from Apollo Client
+import { ADD_USER } from '../utils/mutations';
 import Auth from '../utils/auth';
 
 const SignupForm = () => {
@@ -12,7 +13,18 @@ const SignupForm = () => {
   // set state for alert
   const [showAlert, setShowAlert] = useState(false);
 
-  const handleInputChange = (event) => {
+  // use mutation for signing up a user
+  const [addUser, {error}] = useMutation(ADD_USER);
+
+  useEffect(() => { // Use the useEffect hook to check for a response from the mutation
+    if (error) {
+      setShowAlert(true); // If there is an error, show the alert
+    } else {
+      setShowAlert(false); // If there is no error, hide the alert
+    }
+  }, [error]); // Add error to the dependency array
+
+  const handleInputChange = (event) => { 
     const { name, value } = event.target;
     setUserFormData({ ...userFormData, [name]: value });
   };
@@ -20,32 +32,28 @@ const SignupForm = () => {
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 
-    // check if form has everything (as per react-bootstrap docs)
+    // this is needed for form validation
     const form = event.currentTarget;
-    if (form.checkValidity() === false) {
-      event.preventDefault();
-      event.stopPropagation();
+    if (form.checkValidity() === false) { // Check if the form is valid
+      event.preventDefault(); // If the form is invalid, prevent default behavior
+      event.stopPropagation(); // Stop the event propagation to the parent elements because the form is invalid
     }
 
-    try {
-      const response = await createUser(userFormData);
+    // try to sign up the user
+    try { // Try to execute the addUser mutation
+      const { data } = await addUser({ //this is needed for the mutation to work in order to add a user
+        variables: { ...userFormData },
+    });
 
-      if (!response.ok) {
-        throw new Error('something went wrong!');
-      }
-
-      const { token, user } = await response.json();
-      console.log(user);
-      Auth.login(token);
+      Auth.login(data.addUser.token);
     } catch (err) {
       console.error(err);
-      setShowAlert(true);
     }
 
-    setUserFormData({
-      username: '',
-      email: '',
-      password: '',
+    setUserFormData({ // Reset the form after submission
+      username: '', // Reset the username
+      email: '', // Reset the email
+      password: '', // Reset the password
     });
   };
 
