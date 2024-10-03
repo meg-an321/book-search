@@ -14,6 +14,7 @@ This assignment includes:
 
 ## Installion
 - npm i
+- npm run build
 - npm run develop
 
 ## GitHub Link

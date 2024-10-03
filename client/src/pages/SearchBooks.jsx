@@ -8,29 +8,23 @@ import {
   Row
 } from 'react-bootstrap';
 
-import Auth from '../utils/auth';
-import { searchGoogleBooks } from '../utils/API';
-import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
-import { useMutation } from '@apollo/client';
-import { SAVE_BOOK } from '../utils/mutations';
+import Auth from '../utils/auth'; // import the Auth service to handle login
+import { searchGoogleBooks } from '../utils/API'; // import the API file to handle the API call
+import { saveBookIds, getSavedBookIds } from '../utils/localStorage'; // import the localStorage file to handle the localStorage
+import { useMutation } from '@apollo/client'; // import the useMutation hook to handle mutations
+import { SAVE_BOOK } from '../utils/mutations'; // import the mutation file to handle the mutation
 
 const SearchBooks = () => {
-  // create state for holding returned google api data
-  const [searchedBooks, setSearchedBooks] = useState([]);
-  // create state for holding our search field data
-  const [searchInput, setSearchInput] = useState('');
+  const [searchedBooks, setSearchedBooks] = useState([]); // create state to hold searched books data
+  const [searchInput, setSearchInput] = useState(''); // create state to hold search input data
 
-  // create state to hold saved bookId values
-  const [savedBookIds, setSavedBookIds] = useState(getSavedBookIds());
+  const [savedBookIds, setSavedBookIds] = useState(getSavedBookIds()); // needed to update the savedBookIds state
 
-  // set up useEffect hook to save `savedBookIds` list to localStorage on component unmount
-  // learn more here: https://reactjs.org/docs/hooks-effect.html#effects-with-cleanup
   useEffect(() => {
     return () => saveBookIds(savedBookIds);
   });
 
-   // define the save book function from the mutation
-   const [saveBook] = useMutation(SAVE_BOOK)
+  const [saveBook] = useMutation(SAVE_BOOK) // create a mutation function to save a book
 
   // create method to search for books and set state on form submit
   const handleFormSubmit = async (event) => {
@@ -41,7 +35,7 @@ const SearchBooks = () => {
     }
 
     try {
-      const response = await searchGoogleBooks(searchInput);
+      const response = await searchGoogleBooks(searchInput); // call the API function to search Google Books
 
       if (!response.ok) {
         throw new Error('something went wrong!');
@@ -55,6 +49,7 @@ const SearchBooks = () => {
         title: book.volumeInfo.title,
         description: book.volumeInfo.description,
         image: book.volumeInfo.imageLinks?.thumbnail || '',
+        link: book.volumeInfo.infoLink || '',
       }));
 
       setSearchedBooks(bookData);
@@ -66,11 +61,10 @@ const SearchBooks = () => {
 
   // create function to handle saving a book to our database
   const handleSaveBook = async (bookId) => {
-    // find the book in `searchedBooks` state by the matching id
-    const bookToSave = searchedBooks.find((book) => book.bookId === bookId);
+    const bookToSave = searchedBooks.find((book) => book.bookId === bookId); // find the book in `searchedBooks` state by the matching id
 
-    if (!bookToSave) {
-      return;
+    if (!bookToSave) { // if the book doesn't exist, return out of the function
+      return; // if the book exists, save the book to the `savedBooks` list in state
     }
 
     // get token
@@ -84,15 +78,15 @@ const SearchBooks = () => {
       const { data } = await saveBook({
         variables: { bookInput: bookToSave },
       });
-  
+
       if (!data) {
         throw new Error('Failed to save book');
       }
 
-      // if book successfully saves to user's account, save book id to state
-      setSavedBookIds([...savedBookIds, bookToSave.bookId]);
-    } catch (err) {
-      console.error(err);
+      
+      setSavedBookIds([...savedBookIds, bookToSave.bookId]);// if book successfully saves to user's account, save book id to state
+    } catch (err) { // if the mutation fails, console log the error
+      console.error(err); // if there's an error, save the book id to the `savedBookIds` list in local storage
     }
   };
 
@@ -135,12 +129,17 @@ const SearchBooks = () => {
               <Col md="4" key={book.bookId}>
                 <Card border='dark'>
                   {book.image ? (
-                    <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant='top' />
+                    <a href={book.link} target="_blank" rel="noopener noreferrer">
+                      <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant='top' />
+                    </a>
                   ) : null}
                   <Card.Body>
                     <Card.Title>{book.title}</Card.Title>
                     <p className='small'>Authors: {book.authors}</p>
                     <Card.Text>{book.description}</Card.Text>
+                    <a href={book.link} target="_blank" rel="noopener noreferrer">
+                      View on Google Books
+                    </a>
                     {Auth.loggedIn() && (
                       <Button
                         disabled={savedBookIds?.some((savedBookId) => savedBookId === book.bookId)}
