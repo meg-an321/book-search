@@ -7,16 +7,16 @@ import {
   Col
 } from 'react-bootstrap';
 
-import { useQuery, useMutation } from '@apollo/client'; // import the useQuery and useMutation hooks from the Apollo Client
-import { GET_ME } from '../utils/queries'; // import the query file to use the query
-import { REMOVE_BOOK } from '../utils/mutations'; // import the mutation file to use the mutation
-import Auth from '../utils/auth'; // import the Auth service to handle login
-import { removeBookId } from '../utils/localStorage'; // import the localStorage file to handle the localStorage
+import { useQuery, useMutation } from '@apollo/client';
+import { GET_ME } from '../utils/queries';
+import { REMOVE_BOOK } from '../utils/mutations';
+import Auth from '../utils/auth';
+import { removeBookId } from '../utils/localStorage';
 
 const SavedBooks = () => {
-  const { loading, data } = useQuery(GET_ME); // use the useQuery hook to make the query request
-  const [removeBook] = useMutation(REMOVE_BOOK); // use the useMutation hook to make the mutation request
-  const userData = data?.me || {}; // set userData to data.me or an empty object if data.me is undefined
+  const { loading, data } = useQuery(GET_ME);
+  const [removeBook] = useMutation(REMOVE_BOOK);
+  const userData = data?.me || {};
 
   const handleDeleteBook = async (bookId) => {
     try {
@@ -30,9 +30,10 @@ const SavedBooks = () => {
         variables: { bookId }
       });
 
-      removeBookId(bookId); // remove the bookId from localStorage
-    } catch (err) { // catch any errors and log them to the console
-      console.error(err); // log the error to the console
+      // upon success, remove book's id from localStorage
+      removeBookId(bookId);
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -59,7 +60,7 @@ const SavedBooks = () => {
             return (
               <Col key={book.bookId} md="4">
                 <Card border='dark'>
-                {book.image ? (
+                  {book.image ? (
                     <a href={book.link} target="_blank" rel="noopener noreferrer">
                       <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant='top' />
                     </a>
@@ -68,9 +69,11 @@ const SavedBooks = () => {
                     <Card.Title>{book.title}</Card.Title>
                     <p className='small'>Authors: {book.authors}</p>
                     <Card.Text>{book.description}</Card.Text>
-                    <a href={book.link} target="_blank" rel="noopener noreferrer">
-                      View on Google Books
-                    </a>
+                    <p>
+                      <a href={book.link} target="_blank" rel="noopener noreferrer">
+                        View on Google Books
+                      </a>
+                    </p>
                     <Button className='btn-block btn-danger' onClick={() => handleDeleteBook(book.bookId)}>
                       Delete this Book!
                     </Button>
