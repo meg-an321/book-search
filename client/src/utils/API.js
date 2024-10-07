@@ -29,23 +29,23 @@ export const loginUser = (userData) => {
 };
 
 // save book data for a logged in user
-export const saveBook = (bookData, token) => {
-  return fetch('/api/users', {
-    method: 'PUT',
+export const saveBook = (bookData, token) => { // called the saveBook function with the bookData object and the token as arguments
+  return fetch('/api/users', { // called the /api/users route
+    method: 'PUT', // used the PUT method to update the user
     headers: {
       'Content-Type': 'application/json',
-      authorization: `Bearer ${token}`,
+      authorization: `Bearer ${token}`, // brearer token used to authenticate the user
     },
-    body: JSON.stringify(bookData),
+    body: JSON.stringify(bookData), // passed the bookData object as the body of the request
   });
 };
 
 // remove saved book data for a logged in user
-export const deleteBook = (bookId, token) => {
+export const deleteBook = (bookId, token) => { // called the deleteBook function with the bookId and token as arguments
   return fetch(`/api/users/books/${bookId}`, {
-    method: 'DELETE',
+    method: 'DELETE', // used the DELETE method to remove the book
     headers: {
-      authorization: `Bearer ${token}`,
+      authorization: `Bearer ${token}`, // brearer token used to authenticate the user
     },
   });
 };

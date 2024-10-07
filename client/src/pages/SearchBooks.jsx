@@ -8,11 +8,11 @@ import {
   Row
 } from 'react-bootstrap';
 
-import Auth from '../utils/auth';
-import { searchGoogleBooks } from '../utils/API';
-import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
-import { useMutation } from '@apollo/client';
-import { SAVE_BOOK } from '../utils/mutations';
+import Auth from '../utils/auth'; // Import the Auth module
+import { searchGoogleBooks } from '../utils/API'; // Import the searchGoogleBooks function
+import { saveBookIds, getSavedBookIds } from '../utils/localStorage'; // Import the saveBookIds and getSavedBookIds functions
+import { useMutation } from '@apollo/client'; // Import the useMutation hook from Apollo Client
+import { SAVE_BOOK } from '../utils/mutations'; // Import the SAVE_BOOK mutation
 
 const SearchBooks = () => {
   // create state for holding returned google api data
@@ -36,24 +36,24 @@ const SearchBooks = () => {
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 
-    if (!searchInput) {
-      return false;
+    if (!searchInput) { // If there is no search input, return false
+      return false; 
     }
 
     try {
       const response = await searchGoogleBooks(searchInput);
 
-      if (!response.ok) {
+      if (!response.ok) { // If there is no response, throw an error
         throw new Error('something went wrong!');
       }
 
-      const { items } = await response.json();
+      const { items } = await response.json(); // If there is a response, get the items from the response
 
       const bookData = items.map((book) => ({
         bookId: book.id,
-        authors: book.volumeInfo.authors || ['No author to display'],
-        title: book.volumeInfo.title,
-        description: book.volumeInfo.description,
+        authors: book.volumeInfo.authors || ['No author to display'], // If there are no authors, display 'No author to display'
+        title: book.volumeInfo.title, // Get the title from the book.volumeInfo object
+        description: book.volumeInfo.description, // Get the description from the book.volumeInfo object
         image: book.volumeInfo.imageLinks?.thumbnail || '',
         link: book.volumeInfo.infoLink || '',
       }));
@@ -77,8 +77,8 @@ const SearchBooks = () => {
     // get token
     const token = Auth.loggedIn() ? Auth.getToken() : null;
 
-    if (!token) {
-      return false;
+    if (!token) { // If there is no token, return false
+      return false; 
     }
 
     try {
@@ -90,10 +90,10 @@ const SearchBooks = () => {
         throw new Error('Failed to save book');
       }
 
-      // if book successfully saves to user's account, save book id to state
-      setSavedBookIds([...savedBookIds, bookToSave.bookId]);
-    } catch (err) {
-      console.error(err);
+      
+      setSavedBookIds([...savedBookIds, bookToSave.bookId]); // add the bookId to the savedBookIds array
+    } catch (err) { // If there is an error, log the error
+      console.error(err); // If there is an error, log the error
     }
   };
 
@@ -145,7 +145,7 @@ const SearchBooks = () => {
                     <p className='small'>Authors: {book.authors}</p>
                     <Card.Text>{book.description}</Card.Text>
                     <p>
-                      <a href={book.link} target="_blank" rel="noopener noreferrer">
+                      <a href={book.link} target="_blank" rel="noopener noreferrer"> 
                         View on Google Books
                       </a>
                     </p>
@@ -153,10 +153,10 @@ const SearchBooks = () => {
                       <Button
                         disabled={savedBookIds?.some((savedBookId) => savedBookId === book.bookId)}
                         className='btn-block btn-info'
-                        onClick={() => handleSaveBook(book.bookId)}>
-                        {savedBookIds?.some((savedBookId) => savedBookId === book.bookId)
-                          ? 'This book has already been saved!'
-                          : 'Save this Book!'}
+                        onClick={() => handleSaveBook(book.bookId)}> 
+                        {savedBookIds?.some((savedBookId) => savedBookId === book.bookId) // if the book is in the savedBooks array, display 'This book has already been saved!'
+                          ? 'This book has already been saved!' // if the book is not in the savedBooks array, display 'Save this Book!'
+                          : 'Save this Book!'} 
                       </Button>
                     )}
                   </Card.Body>

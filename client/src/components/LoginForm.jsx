@@ -36,16 +36,16 @@ const LoginForm = () => {
       event.stopPropagation();
     }
 
-    // new code 
+    // try to login the user
     try {
-      const response = await loginUser({
-        variables: {...userFormData}
+      const response = await loginUser({ // called the loginUser mutation with the userFormData object as the variables
+        variables: {...userFormData} // passed the userFormData object as the variables
     });
 
-      Auth.login(response.data.login.token);
-    } catch (err) {
-      console.error(err);
-      setShowAlert(true);
+      Auth.login(response.data.login.token); // If the mutation is successful, the token is returned and stored in the local storage
+    } catch (err) { // If there is an error, show the alert
+      console.error(err); // If there is an error, show the alert
+      setShowAlert(true); // If there is an error, show the alert
     }
 
     setUserFormData({

@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-key */
 import {
   Container,
   Card,
@@ -7,33 +6,33 @@ import {
   Col
 } from 'react-bootstrap';
 
-import { useQuery, useMutation } from '@apollo/client';
-import { GET_ME } from '../utils/queries';
-import { REMOVE_BOOK } from '../utils/mutations';
-import Auth from '../utils/auth';
-import { removeBookId } from '../utils/localStorage';
+import { useQuery, useMutation } from '@apollo/client'; // Import the useQuery and useMutation hooks from Apollo Client
+import { GET_ME } from '../utils/queries'; // Import the GET_ME query
+import { REMOVE_BOOK } from '../utils/mutations'; // Import the REMOVE_BOOK mutation
+import Auth from '../utils/auth'; // Import the Auth module
+import { removeBookId } from '../utils/localStorage'; // Import the removeBookId function
 
-const SavedBooks = () => {
-  const { loading, data } = useQuery(GET_ME);
-  const [removeBook] = useMutation(REMOVE_BOOK);
-  const userData = data?.me || {};
+const SavedBooks = () => { // Define the SavedBooks functional component
+  const { loading, data } = useQuery(GET_ME); // Use the useQuery hook to make the GET_ME query
+  const [removeBook] = useMutation(REMOVE_BOOK); // Use the useMutation hook to make the REMOVE_BOOK mutation
+  const userData = data?.me || {}; // If there is user data, set userData to the user data; otherwise, userData is an empty object
 
-  const handleDeleteBook = async (bookId) => {
-    try {
-      const token = Auth.loggedIn() ? Auth.getToken() : null;
+  const handleDeleteBook = async (bookId) => { // Define the handleDeleteBook function
+    try { // Try to remove the book
+      const token = Auth.loggedIn() ? Auth.getToken() : null; // Get the token from Auth if the user is logged in; otherwise, set token to null
 
-      if (!token) {
-        return false;
+      if (!token) { // If there is no token, return false
+        return false; // If there is no token, return false
       }
 
-      await removeBook({
-        variables: { bookId }
+      await removeBook({ // Call the removeBook mutation with the bookId as the variables
+        variables: { bookId } // Pass the bookId as the variables
       });
 
-      // upon success, remove book's id from localStorage
-      removeBookId(bookId);
-    } catch (err) {
-      console.error(err);
+      
+      removeBookId(bookId); // Call the removeBookId function with the bookId as the argument
+    } catch (err) { // If there is an error, log the error
+      console.error(err); // If there is an error, log the error
     }
   };
 
